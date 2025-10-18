@@ -2,11 +2,24 @@ package Meal;
 
 public class Meal {
 
-    private double base = 0;
+    private double base = 5;
 
     private Item burger;
     private Item drink;
     private Item side;
+
+    public Meal() {
+
+        burger = new Item("regular", "burger");
+        drink = new Item("coke", "drink", 1.5);
+        System.out.println(drink.name);
+        side = new Item("fries", "side", 2.0);
+    }
+
+    @Override
+    public String toString() {
+        return "%s%n%s%n%s%n".formatted(burger, drink, side);
+    }
 
     private class Item {
 
