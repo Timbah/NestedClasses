@@ -20,19 +20,19 @@ public class Meal {
     public Meal(double conversionRate) {
 
         this.conversionRate = conversionRate;
-        burger = new Burger("regular", "burger");
+        burger = new Burger("regular");
         drink = new Item("coke", "drink", 1.5);
-//        System.out.println(drink.name);
+        System.out.println(drink.name);
         side = new Item("fries", "side", 2.0);
     }
 
-    public void addTopping(String... toppings) {
+    public void addToppings(String... toppings) {
         burger.addBurgerTopping(toppings);
     }
 
     public double getTotal() {
 
-        double total = burger.getBurgerPrice() + drink.price + side.price;
+        double total = burger.getPrice()+ drink.price + side.price;
         return Item.getPrice(total, conversionRate);
     }
 
@@ -43,49 +43,57 @@ public class Meal {
 
     private class Burger extends Item {
 
-        private List<Item> BurgertoppingsList;
+        private enum Extra {
 
-        public Burger(String name, String type) {
-            this(name, type, 8);
-        }
+            AVOCADO, BACON, CHEESE, KETCHUP, MAYO, MUSTARD, PICKLES;
 
-        public Burger(String name, String type, double price) {
-            super(name, type, price);
-            BurgertoppingsList = new ArrayList<>();
-        }
-
-        private void addBurgerTopping(String... toppings) {
-            String[] toppingsList = toppings;
-
-            for (String topping : toppingsList) {
-                double toppingPrice = switch (topping.toLowerCase()) {
-                    case "cheese" -> 1.0;
-                    case "bacon" -> 1.5;
-                    case "lettuce" -> 0.5;
-                    default -> 0.0;
+            private double getPrice() {
+                return switch (this) {
+                    case AVOCADO -> 1.0;
+                    case BACON, CHEESE -> 1.5;
+                    default -> 0;
                 };
-                BurgertoppingsList.add(new Item(topping, "Topping", toppingPrice));
             }
         }
 
-        private double getBurgerPrice() {
+        private List<Item> BurgertoppingsList = new ArrayList<>();
 
-            double total = this.getPrice();
+        Burger(String name) {
+            super(name, "burger", 5);
+        }
+
+        private void addBurgerTopping(String... toppings) {
+
+            for (String topping : toppings) {
+                try {
+                    Extra extra = Extra.valueOf(topping.toUpperCase());
+                    BurgertoppingsList.add(new Item(extra.name(), "Topping", extra.getPrice()));
+                } catch (IllegalArgumentException e) {
+                    System.out.println("No topping found for "+topping);
+                }
+            }
+        }
+
+        public double getPrice() {
+
+            double total = super.price;
             for (Item topping : BurgertoppingsList) {
-                total += topping.getPrice();
+                total += topping.price;
             }
             return total;
         }
 
+
         @Override
         public String toString() {
 
-            System.out.printf("%10s %.2f%n", this.getClass().getSimpleName(), getBurgerPrice());
+            System.out.printf("%10s %.2f%n", this.getClass().getSimpleName(), getPrice());
             StringBuilder sb = new StringBuilder();
-            for (Item topping : BurgertoppingsList) {
-                sb.append(topping.toString());
-            }
 
+            for (Item topping : BurgertoppingsList) {
+                sb.append("\n");
+                sb.append(topping);
+            }
             return sb.toString();
         }
     }
